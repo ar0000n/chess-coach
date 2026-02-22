@@ -78,10 +78,10 @@ python analyst.py <username> --type Rapid | python coach.py <username> --type Ra
 ## Example output
 
 ```
-Looking up ratings for 'ArunRamalingam'...
+Looking up ratings for 'magnus'...
 
 ============================================================
- Player Ratings — ArunRamalingam
+ Player Ratings — magnus
 ============================================================
   Bullet        1423   ↑12    (152 games)
   Blitz         1567   ↓5     (891 games)
@@ -89,11 +89,11 @@ Looking up ratings for 'ArunRamalingam'...
   Classical        —           (no games)
 ============================================================
 
-Fetching last 20 Rapid games for 'ArunRamalingam'...
+Fetching last 20 Rapid games for 'magnus'...
 Parsed 20 games. Sending to Claude...
 
 ============================================================
- Chess Coach Analysis — ArunRamalingam
+ Chess Coach Analysis — magnus
 ============================================================
 
 **Pattern 1: Endgame technique breaks down**
@@ -104,7 +104,7 @@ to slip into a draw...
 ...
 
 ============================================================
- 1-Week Improvement Plan — ArunRamalingam
+ 1-Week Improvement Plan — magnus
 ============================================================
 
 ## Primary Focus Area
@@ -113,7 +113,7 @@ to slip into a draw...
 ## Daily Puzzle Practice
 - **Monday:** [Rook Endgame](https://lichess.org/training/rookEndgame) — ...
 
-Report saved to: chess-ArunRamalingam-rapid-2026-02-22.md
+Report saved to: chess-magnus-rapid-2026-02-22.md
 ```
 
 ## Project structure
