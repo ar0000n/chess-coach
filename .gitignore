@@ -15,3 +15,10 @@ chess-*.md
 
 # macOS
 .DS_Store
+
+# Next.js
+.next/
+node_modules/
+
+# Leftover subfolder (node_modules only, files moved to root)
+chessdebrief/
