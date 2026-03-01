@@ -1,11 +1,8 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { X, ArrowRight, Crown } from "lucide-react";
+import { X, ArrowRight, Crown, CheckCircle2 } from "lucide-react";
 import { MOCK_REPORT_ID } from "@/mock/analysis";
-
-// In-memory store — swap for a real API call later
-const waitlistEmails: string[] = [];
 
 interface EarlyAccessModalProps {
   open: boolean;
@@ -17,6 +14,7 @@ export function EarlyAccessModal({ open, onClose }: EarlyAccessModalProps) {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [submitted, setSubmitted] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Focus input when modal opens; lock body scroll
@@ -38,22 +36,38 @@ export function EarlyAccessModal({ open, onClose }: EarlyAccessModalProps) {
     return () => window.removeEventListener("keydown", handler);
   }, [open, onClose]);
 
+  // Reset state when modal closes
+  useEffect(() => {
+    if (!open) {
+      setEmail("");
+      setError("");
+      setLoading(false);
+      setSubmitted(false);
+    }
+  }, [open]);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const trimmed = email.trim().toLowerCase();
     if (!trimmed) return;
     setLoading(true);
     setError("");
+    console.log("Submitting email", trimmed);
 
-    // Simulate network round-trip; swap for real API call later
-    await new Promise((r) => setTimeout(r, 700));
+    const res = await fetch("/api/waitlist", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: trimmed }),
+    });
 
-    if (!waitlistEmails.includes(trimmed)) {
-      waitlistEmails.push(trimmed);
+    if (!res.ok) {
+      setError("Something went wrong. Please try again.");
+      setLoading(false);
+      return;
     }
 
-    // Redirect straight to the sample debrief report
-    router.push(`/report/${MOCK_REPORT_ID}`);
+    setSubmitted(true);
+    setTimeout(() => router.push(`/report/${MOCK_REPORT_ID}`), 1500);
   }
 
   if (!open) return null;
@@ -92,55 +106,73 @@ export function EarlyAccessModal({ open, onClose }: EarlyAccessModalProps) {
           </span>
         </div>
 
-        {/* Headline */}
-        <div className="text-center mb-6">
-          <h2
-            id="modal-headline"
-            className="text-2xl font-bold text-[#f1f1f3] mb-2"
-          >
-            See a Full Sample Debrief
-          </h2>
-          <p className="text-sm text-[#9a9aaa] leading-relaxed max-w-xs mx-auto">
-            Enter your email and we&apos;ll show you exactly what your debrief would
-            look like — plus save your spot for early access.
-          </p>
-        </div>
+        {!submitted ? (
+          <>
+            {/* Headline */}
+            <div className="text-center mb-6">
+              <h2
+                id="modal-headline"
+                className="text-2xl font-bold text-[#f1f1f3] mb-2"
+              >
+                Get Early Access
+              </h2>
+              <p className="text-sm text-[#9a9aaa] leading-relaxed max-w-xs mx-auto">
+                Enter your email to get notified when personalized debriefs go live for your account.
+              </p>
+            </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <input
-            ref={inputRef}
-            type="email"
-            required
-            value={email}
-            onChange={(e) => { setEmail(e.target.value); setError(""); }}
-            placeholder="your@email.com"
-            className="w-full rounded-lg border border-[#2e2e36] bg-[#1a1a1f] px-4 py-3 text-sm text-[#f1f1f3] placeholder-[#4a4a56] focus:border-[#10B981]/50 focus:ring-1 focus:ring-[#10B981]/30 focus:outline-none transition-colors"
-          />
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <input
+                ref={inputRef}
+                type="email"
+                required
+                value={email}
+                onChange={(e) => { setEmail(e.target.value); setError(""); }}
+                placeholder="your@email.com"
+                className="w-full rounded-lg border border-[#2e2e36] bg-[#1a1a1f] px-4 py-3 text-sm text-[#f1f1f3] placeholder-[#4a4a56] focus:border-[#10B981]/50 focus:ring-1 focus:ring-[#10B981]/30 focus:outline-none transition-colors"
+              />
 
-          {error && (
-            <p className="text-xs text-amber-400">{error}</p>
-          )}
+              {error && (
+                <p className="text-xs text-amber-400">{error}</p>
+              )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-[#0d9e6e] hover:bg-[#0f8f63] active:bg-[#0a7a53] text-[#f1f1f3] font-semibold px-5 py-3 text-sm transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
-          >
-            {loading ? (
-              <span className="w-4 h-4 border-2 border-[#f1f1f3]/40 border-t-[#f1f1f3] rounded-full animate-spin" />
-            ) : (
-              <>
-                Show Me My Sample
-                <ArrowRight size={14} />
-              </>
-            )}
-          </button>
-        </form>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-[#0d9e6e] hover:bg-[#0f8f63] active:bg-[#0a7a53] text-[#f1f1f3] font-semibold px-5 py-3 text-sm transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {loading ? (
+                  <span className="w-4 h-4 border-2 border-[#f1f1f3]/40 border-t-[#f1f1f3] rounded-full animate-spin" />
+                ) : (
+                  <>
+                    Claim My Spot
+                    <ArrowRight size={14} />
+                  </>
+                )}
+              </button>
+            </form>
 
-        <p className="mt-4 text-center text-xs text-[#6b6b7a]">
-          No spam, ever. Unsubscribe any time.
-        </p>
+            <p className="mt-4 text-center text-xs text-[#6b6b7a]">
+              No spam, ever. Unsubscribe any time.
+            </p>
+          </>
+        ) : (
+          /* Success state — auto-redirects after 1.5s */
+          <div className="text-center py-4">
+            <div className="flex justify-center mb-4">
+              <div className="w-14 h-14 rounded-full bg-[#10B981]/15 border border-[#10B981]/30 flex items-center justify-center">
+                <CheckCircle2 size={28} className="text-[#10B981]" />
+              </div>
+            </div>
+            <h3 className="text-xl font-bold text-[#f1f1f3] mb-2">
+              You&apos;re on the list!
+            </h3>
+            <p className="text-sm text-[#9a9aaa] max-w-xs mx-auto leading-relaxed">
+              We&apos;ll email you when your personalized debrief is ready. Taking you to the sample now…
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

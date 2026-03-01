@@ -2,9 +2,6 @@
 import { useState, useRef } from "react";
 import { ArrowRight, CheckCircle2, Users } from "lucide-react";
 
-// In-memory store — swap for a real backend call later
-const waitlistEmails: string[] = [];
-
 export function EmailCapture() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -19,17 +16,20 @@ export function EmailCapture() {
 
     setLoading(true);
     setError("");
+    console.log("Submitting email", trimmed);
 
-    // Simulate a network round-trip; replace with real API call later
-    await new Promise((r) => setTimeout(r, 700));
+    const res = await fetch("/api/waitlist", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: trimmed }),
+    });
 
-    if (waitlistEmails.includes(trimmed)) {
-      setError("You're already on the list!");
+    if (!res.ok) {
+      setError("Something went wrong. Please try again.");
       setLoading(false);
       return;
     }
 
-    waitlistEmails.push(trimmed);
     setSubmitted(true);
     setLoading(false);
   }
